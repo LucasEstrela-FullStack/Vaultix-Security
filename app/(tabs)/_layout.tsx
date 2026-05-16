@@ -4,7 +4,7 @@ import { Platform } from 'react-native';
 import { HapticTab } from '@/components/haptic-tab';
 import { Colors } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
-import { Shield, BookOpen, HeartHandshake } from 'lucide-react-native';
+import { Shield, BookOpen, HeartHandshake, LayoutGrid } from 'lucide-react-native';
 
 export default function TabLayout() {
   const colorScheme = useColorScheme() as 'light' | 'dark' | null | undefined;
@@ -24,6 +24,13 @@ export default function TabLayout() {
       }}>
       <Tabs.Screen
         name="index"
+        options={{
+          title: 'Home',
+          tabBarIcon: ({ color }) => <LayoutGrid size={28} color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="sos"
         options={{
           title: 'SOS',
           tabBarIcon: ({ color }) => <Shield size={28} color={color} />,

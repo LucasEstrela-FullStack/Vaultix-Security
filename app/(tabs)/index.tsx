@@ -1,6 +1,6 @@
 import React from 'react';
-import SosScreen from '../../src/features/sos/screens/SosScreen';
+import HomeScreen from '../../src/features/home/screens/HomeScreen';
 
 export default function TabOneScreen() {
-  return <SosScreen />;
+  return <HomeScreen />;
 }
