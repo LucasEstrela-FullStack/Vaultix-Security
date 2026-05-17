@@ -115,22 +115,28 @@ export default function QuizScreen() {
           </View>
 
           {showFeedback && (
-            <View style={styles.feedbackContainer}>
-              <Text style={styles.feedbackTitle}>
-                {selectedOption === currentQuestion.correctAnswer
-                  ? "🎉 Muito bem!"
-                  : "💡 Pense bem..."}
-              </Text>
-              <Text style={styles.feedbackText}>
-                {currentQuestion.feedback}
-              </Text>
-              <TouchableOpacity style={styles.nextButton} onPress={handleNext}>
-                <Text style={styles.nextButtonText}>
-                  {currentIndex < currentQuestions.length - 1
-                    ? "Próxima Pergunta"
-                    : "Reiniciar"}
+            <View style={styles.feedbackOverlay} pointerEvents="box-none">
+              <View style={styles.feedbackBox}>
+                <Text style={styles.feedbackTitle}>
+                  {selectedOption === currentQuestion.correctAnswer
+                    ? "🎉 Muito bem!"
+                    : "💡 Pense bem..."}
                 </Text>
-              </TouchableOpacity>
+                <Text style={styles.feedbackText}>
+                  {currentQuestion.feedback}
+                </Text>
+                <TouchableOpacity
+                  style={styles.nextButton}
+                  onPress={handleNext}
+                  activeOpacity={0.9}
+                >
+                  <Text style={styles.nextButtonText}>
+                    {currentIndex < currentQuestions.length - 1
+                      ? "Próxima Pergunta"
+                      : "Reiniciar"}
+                  </Text>
+                </TouchableOpacity>
+              </View>
             </View>
           )}
         </View>
@@ -160,17 +166,7 @@ export default function QuizScreen() {
         </ScrollView>
       </Modal>
 
-      {showFeedback && (
-        <View style={styles.floatingButtonContainer} pointerEvents="box-none">
-          <TouchableOpacity style={styles.floatingButton} onPress={handleNext}>
-            <Text style={styles.nextButtonText}>
-              {currentIndex < currentQuestions.length - 1
-                ? "Próxima Pergunta"
-                : "Reiniciar"}
-            </Text>
-          </TouchableOpacity>
-        </View>
-      )}
+      {/* feedback handled via overlay inside the card */}
     </ScrollView>
   );
 }
@@ -208,6 +204,7 @@ const styles = StyleSheet.create({
     shadowRadius: 10,
     elevation: 4,
     paddingBottom: 32,
+    position: "relative",
   },
   themeTag: {
     backgroundColor: "#DBEAFE",
@@ -260,6 +257,30 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: "#E2E8F0",
   },
+  feedbackOverlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0,0,0,0.18)",
+    zIndex: 40,
+    padding: 20,
+  },
+  feedbackBox: {
+    width: "100%",
+    maxWidth: 520,
+    backgroundColor: "white",
+    borderRadius: 12,
+    padding: 18,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.12,
+    shadowRadius: 16,
+    elevation: 10,
+  },
   feedbackTitle: {
     fontSize: 18,
     fontWeight: "bold",
@@ -287,25 +308,5 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     fontSize: 16,
   },
-  floatingButtonContainer: {
-    position: "absolute",
-    left: 20,
-    right: 20,
-    bottom: 28,
-    alignItems: "center",
-    zIndex: 50,
-  },
-  floatingButton: {
-    backgroundColor: "#1E3A8A",
-    borderRadius: 16,
-    paddingVertical: 14,
-    paddingHorizontal: 20,
-    width: "100%",
-    alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.12,
-    shadowRadius: 12,
-    elevation: 8,
-  },
+  // removed floating button styles; feedback now uses centered overlay
 });
