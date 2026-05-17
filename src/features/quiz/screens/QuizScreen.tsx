@@ -1,79 +1,176 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
-
-const QUIZ_QUESTIONS = [
-  {
-    id: 1,
-    title: 'Segurança em Redes Sociais',
-    question: 'Uma pessoa que você conheceu online acabou de pedir para você enviar uma foto íntima e disse que confia em você. O que você faz?',
-    options: [
-      'Envio, pois não quero magoar a pessoa.',
-      'Não envio, bloqueio a pessoa e converso com um adulto de confiança.',
-      'Pergunto o motivo antes de decidir.'
-    ],
-    correctAnswer: 1,
-    feedback: 'Excelente! Nunca compartilhe fotos íntimas. Pessoas mal-intencionadas usam isso para chantagem (sextorsão). Sempre bloqueie e peça ajuda.'
-  }
-];
+import React, { useState } from "react";
+import {
+    Modal,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
+} from "react-native";
+import { ARTICLES, QUIZ_QUESTIONS_BY_ARTICLE } from "../data/articles";
 
 export default function QuizScreen() {
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
   const [showFeedback, setShowFeedback] = useState(false);
+  const [currentQuestions, setCurrentQuestions] = useState<any[]>(
+    QUIZ_QUESTIONS_BY_ARTICLE[ARTICLES[0].id],
+  );
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [articleModalVisible, setArticleModalVisible] = useState(false);
+  const [activeArticle, setActiveArticle] = useState(ARTICLES[0]);
 
   const handleOptionSelect = (index: number) => {
     setSelectedOption(index);
     setShowFeedback(true);
   };
 
-  const currentQuestion = QUIZ_QUESTIONS[0];
+  const openArticle = (article: any) => {
+    setActiveArticle(article);
+    setArticleModalVisible(true);
+  };
+
+  const startQuizForArticle = (articleId: string) => {
+    const questions = QUIZ_QUESTIONS_BY_ARTICLE[articleId] ?? [];
+    setCurrentQuestions(questions);
+    setCurrentIndex(0);
+    setSelectedOption(null);
+    setShowFeedback(false);
+    setArticleModalVisible(false);
+  };
+
+  const currentQuestion = currentQuestions[currentIndex];
+
+  const handleNext = () => {
+    setSelectedOption(null);
+    setShowFeedback(false);
+    if (currentIndex < currentQuestions.length - 1) {
+      setCurrentIndex((i) => i + 1);
+    } else {
+      // finished
+      setCurrentIndex(0);
+    }
+  };
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.headerTitle}>Quiz Consciente</Text>
-      <Text style={styles.headerSubtitle}>Aprenda a se proteger no ambiente digital</Text>
+      <Text style={styles.headerTitle}>Educação — Artigos & Quiz</Text>
+      <Text style={styles.headerSubtitle}>
+        Leia os artigos e teste seu conhecimento
+      </Text>
 
-      <View style={styles.card}>
-        <Text style={styles.themeTag}>{currentQuestion.title}</Text>
-        <Text style={styles.questionText}>{currentQuestion.question}</Text>
-
-        <View style={styles.optionsContainer}>
-          {currentQuestion.options.map((option, index) => {
-            const isSelected = selectedOption === index;
-            const isCorrect = index === currentQuestion.correctAnswer;
-            
-            let optionStyle: any = styles.optionButton;
-            if (showFeedback) {
-              if (isCorrect) optionStyle = [styles.optionButton, styles.optionCorrect];
-              else if (isSelected && !isCorrect) optionStyle = [styles.optionButton, styles.optionIncorrect];
-            } else if (isSelected) {
-              optionStyle = [styles.optionButton, styles.optionSelected];
-            }
-
-            return (
-              <TouchableOpacity
-                key={index}
-                style={optionStyle}
-                onPress={() => handleOptionSelect(index)}
-                disabled={showFeedback}
-              >
-                <Text style={styles.optionText}>{option}</Text>
-              </TouchableOpacity>
-            );
-          })}
-        </View>
-
-        {showFeedback && (
-          <View style={styles.feedbackContainer}>
-            <Text style={styles.feedbackTitle}>
-              {selectedOption === currentQuestion.correctAnswer ? '🎉 Muito bem!' : '💡 Pense bem...'}
-            </Text>
-            <Text style={styles.feedbackText}>{currentQuestion.feedback}</Text>
-            <TouchableOpacity style={styles.nextButton} onPress={() => { setSelectedOption(null); setShowFeedback(false); }}>
-              <Text style={styles.nextButtonText}>Próxima Pergunta</Text>
-            </TouchableOpacity>
-          </View>
-        )}
+      <View style={{ width: "100%", marginBottom: 16 }}>
+        {ARTICLES.map((article) => (
+          <TouchableOpacity
+            key={article.id}
+            style={styles.articleCard}
+            onPress={() => openArticle(article)}
+          >
+            <Text style={styles.articleTitle}>{article.title}</Text>
+            <Text style={styles.articleExcerpt}>{article.excerpt}</Text>
+            <Text style={styles.readMore}>Ler artigo →</Text>
+          </TouchableOpacity>
+        ))}
       </View>
+
+      {currentQuestion && (
+        <View style={styles.card}>
+          <Text style={styles.themeTag}>{currentQuestion.title}</Text>
+          <Text style={styles.questionText}>{currentQuestion.question}</Text>
+
+          <View style={styles.optionsContainer}>
+            {currentQuestion.options.map((option: string, index: number) => {
+              const isSelected = selectedOption === index;
+              const isCorrect = index === currentQuestion.correctAnswer;
+
+              let optionStyle: any = styles.optionButton;
+              if (showFeedback) {
+                if (isCorrect)
+                  optionStyle = [styles.optionButton, styles.optionCorrect];
+                else if (isSelected && !isCorrect)
+                  optionStyle = [styles.optionButton, styles.optionIncorrect];
+              } else if (isSelected) {
+                optionStyle = [styles.optionButton, styles.optionSelected];
+              }
+
+              return (
+                <TouchableOpacity
+                  key={index}
+                  style={optionStyle}
+                  onPress={() => handleOptionSelect(index)}
+                  disabled={showFeedback}
+                >
+                  {(() => {
+                    let prefix = "";
+                    if (showFeedback) {
+                      if (isCorrect) prefix = "✅ ";
+                      else if (isSelected && !isCorrect) prefix = "❌ ";
+                    }
+                    return (
+                      <Text style={styles.optionText}>{prefix + option}</Text>
+                    );
+                  })()}
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+
+          {showFeedback && (
+            <View style={styles.feedbackContainer}>
+              <Text style={styles.feedbackTitle}>
+                {selectedOption === currentQuestion.correctAnswer
+                  ? "🎉 Muito bem!"
+                  : "💡 Pense bem..."}
+              </Text>
+              <Text style={styles.feedbackText}>
+                {currentQuestion.feedback}
+              </Text>
+              <TouchableOpacity style={styles.nextButton} onPress={handleNext}>
+                <Text style={styles.nextButtonText}>
+                  {currentIndex < currentQuestions.length - 1
+                    ? "Próxima Pergunta"
+                    : "Reiniciar"}
+                </Text>
+              </TouchableOpacity>
+            </View>
+          )}
+        </View>
+      )}
+
+      <Modal visible={articleModalVisible} animationType="slide">
+        <ScrollView contentContainerStyle={styles.container}>
+          <Text style={styles.headerTitle}>{activeArticle.title}</Text>
+          <Text style={{ marginBottom: 20 }}>{activeArticle.content}</Text>
+          <TouchableOpacity
+            style={styles.nextButton}
+            onPress={() => startQuizForArticle(activeArticle.id)}
+          >
+            <Text style={styles.nextButtonText}>Fazer Quiz deste artigo</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[
+              styles.nextButton,
+              { marginTop: 12, backgroundColor: "#E2E8F0" },
+            ]}
+            onPress={() => setArticleModalVisible(false)}
+          >
+            <Text style={[styles.nextButtonText, { color: "#0F172A" }]}>
+              Voltar
+            </Text>
+          </TouchableOpacity>
+        </ScrollView>
+      </Modal>
+
+      {showFeedback && (
+        <View style={styles.floatingButtonContainer} pointerEvents="box-none">
+          <TouchableOpacity style={styles.floatingButton} onPress={handleNext}>
+            <Text style={styles.nextButtonText}>
+              {currentIndex < currentQuestions.length - 1
+                ? "Próxima Pergunta"
+                : "Reiniciar"}
+            </Text>
+          </TouchableOpacity>
+        </View>
+      )}
     </ScrollView>
   );
 }
@@ -81,49 +178,52 @@ export default function QuizScreen() {
 const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
-    backgroundColor: '#F0F4F8',
+    backgroundColor: "#F0F4F8",
     padding: 20,
-    alignItems: 'center',
+    paddingTop: 44,
+    position: "relative",
+    alignItems: "center",
   },
   headerTitle: {
     fontSize: 28,
-    fontWeight: 'bold',
-    color: '#1E3A8A',
+    fontWeight: "bold",
+    color: "#1E3A8A",
     marginTop: 20,
     marginBottom: 8,
   },
   headerSubtitle: {
     fontSize: 16,
-    color: '#475569',
+    color: "#475569",
     marginBottom: 30,
-    textAlign: 'center',
+    textAlign: "center",
   },
   card: {
-    backgroundColor: 'white',
+    backgroundColor: "white",
     borderRadius: 16,
     padding: 24,
-    width: '100%',
-    shadowColor: '#000',
+    width: "100%",
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
     shadowRadius: 10,
     elevation: 4,
+    paddingBottom: 32,
   },
   themeTag: {
-    backgroundColor: '#DBEAFE',
-    color: '#1E40AF',
-    alignSelf: 'flex-start',
+    backgroundColor: "#DBEAFE",
+    color: "#1E40AF",
+    alignSelf: "flex-start",
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 8,
     fontSize: 12,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 16,
   },
   questionText: {
     fontSize: 18,
-    fontWeight: '600',
-    color: '#1E293B',
+    fontWeight: "600",
+    color: "#1E293B",
     marginBottom: 24,
     lineHeight: 26,
   },
@@ -131,56 +231,81 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   optionButton: {
-    backgroundColor: '#F8FAFC',
+    backgroundColor: "#F8FAFC",
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: "#E2E8F0",
     borderRadius: 12,
     padding: 16,
   },
   optionSelected: {
-    borderColor: '#3B82F6',
-    backgroundColor: '#EFF6FF',
+    borderColor: "#3B82F6",
+    backgroundColor: "#EFF6FF",
   },
   optionCorrect: {
-    borderColor: '#10B981',
-    backgroundColor: '#ECFDF5',
+    borderColor: "#34D399",
+    backgroundColor: "#F0FFF4",
   },
   optionIncorrect: {
-    borderColor: '#EF4444',
-    backgroundColor: '#FEF2F2',
+    borderColor: "#FCA5A5",
+    backgroundColor: "#FFF7F7",
   },
   optionText: {
     fontSize: 15,
-    color: '#334155',
+    color: "#334155",
     lineHeight: 22,
   },
   feedbackContainer: {
-    marginTop: 24,
-    paddingTop: 24,
+    marginTop: 12,
+    paddingTop: 12,
     borderTopWidth: 1,
-    borderTopColor: '#E2E8F0',
+    borderTopColor: "#E2E8F0",
   },
   feedbackTitle: {
     fontSize: 18,
-    fontWeight: 'bold',
-    color: '#1E293B',
+    fontWeight: "bold",
+    color: "#1E293B",
     marginBottom: 8,
   },
   feedbackText: {
     fontSize: 15,
-    color: '#475569',
+    color: "#475569",
     lineHeight: 22,
     marginBottom: 20,
   },
   nextButton: {
-    backgroundColor: '#1E3A8A',
+    backgroundColor: "#1E3A8A",
     borderRadius: 12,
-    padding: 16,
-    alignItems: 'center',
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    alignItems: "center",
+    alignSelf: "stretch",
+    marginTop: 8,
+    zIndex: 2,
   },
   nextButtonText: {
-    color: 'white',
-    fontWeight: 'bold',
+    color: "white",
+    fontWeight: "bold",
     fontSize: 16,
+  },
+  floatingButtonContainer: {
+    position: "absolute",
+    left: 20,
+    right: 20,
+    bottom: 28,
+    alignItems: "center",
+    zIndex: 50,
+  },
+  floatingButton: {
+    backgroundColor: "#1E3A8A",
+    borderRadius: 16,
+    paddingVertical: 14,
+    paddingHorizontal: 20,
+    width: "100%",
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.12,
+    shadowRadius: 12,
+    elevation: 8,
   },
 });
