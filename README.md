@@ -68,10 +68,6 @@ A solução foi estruturada respeitando:
 
 O MVP foi pensado como uma aplicação mobile preventiva e educativa contendo conceitos como:
 
-## 🚨 SOS Inteligente
-
-Fluxo emergencial com confirmação de acionamento, permissões explícitas e contato com pessoa de confiança.
-
 ## 💬 Central de Apoio
 
 Canal educativo e orientativo com direcionamento para instituições oficiais e apoio emocional.
