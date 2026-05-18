@@ -1,3 +1,9 @@
+<img width="555" height="838" alt="image" src="https://github.com/user-attachments/assets/fb75cf3a-bf5a-4251-8e21-de2da2a86af1" />
+
+<img width="555" height="838" alt="image" src="https://github.com/user-attachments/assets/cf6e3fa2-1614-4c32-9b47-53df8d3a795c" />
+
+<img width="720" height="1280" alt="image" src="https://github.com/user-attachments/assets/8518664f-6d82-4824-ae2d-e11fb9bd9e06" />
+
 # Vaultix Security — Hacker Hero 2026
 
 ## 📌 Sobre o Projeto
@@ -85,12 +91,7 @@ Conteúdos sobre:
 
 Orientação para canais oficiais como:
 
-* Disque 100;
-* Polícia Civil;
-* Conselho Tutelar;
-* Polícia Militar;
 * instituições de acolhimento.
-
 ---
 
 # 🧱 Tecnologias Utilizadas
